@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="d3.js" charset="utf-8"></script>
+<link rel="stylesheet" type="text/css" href="assignment2.css">
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <!-- Optional Bootstrap theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+<body style="background-color: #b3b300">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<div style=" padding: 7px 20px 7px 20px;">
+<div class="sectionHeader">
+<span class="header ver2"> Australian Open (2004 - 2013) </span><br>
+It's not about how hard you can hit... It's about how much you can get hit, and keep moving forward
+</div>
+
+<button name="button" class="btn btn-primary" value="2004" onclick="onClick(this.value)">2004</button>
+<button name="button" class="btn btn-primary" value="2005" onclick="onClick(this.value)">2005</button>
+<button name="button" class="btn btn-primary" value="2006" onclick="onClick(this.value)">2006</button>
+<button name="button" class="btn btn-primary" value="2007" onclick="onClick(this.value)">2007</button>
+<button name="button" class="btn btn-primary" value="2008" onclick="onClick(this.value)">2008</button>
+<button name="button" class="btn btn-primary" value="2009" onclick="onClick(this.value)">2009</button>
+<button name="button" class="btn btn-primary" value="2010" onclick="onClick(this.value)">2010</button>
+<button name="button" class="btn btn-primary" value="2011" onclick="onClick(this.value)">2011</button>
+<button name="button" class="btn btn-primary" value="2012" onclick="onClick(this.value)">2012</button>
+<button name="button" class="btn btn-primary" value="2013" onclick="onClick(this.value)">2013</button>
+
+</div>
+<div id="svgDiv"></div>
+
+<div id="tempDiv" class="tooltip">
+	<div class="quiz-window">
+  <div class="quiz-window-header">
+    <div class="quiz-window-title" id="Main_Player"></div>
+  </div>
+  <div class="quiz-window-body">
+    <div class="gui-window-awards">
+      <ul class="guiz-awards-row guiz-awards-header">
+        <li class="guiz-awards-header-title">Player</li>
+        <li class="guiz-awards-header-track">Aces</li>
+        <li class="guiz-awards-header-time">Double Faults</li>
+        <li class="guiz-awards-header-track">Return(%)</li>
+      </ul>
+      <ul class="guiz-awards-row guiz-awards-row-even" id="P1" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p1"></li>
+        <li class="guiz-awards-track" id="ace1"></li>
+        <li class="guiz-awards-time" id="df1"></li>
+        <li class="guiz-awards-track" id="ret1"></li>
+      </ul>
+      <ul class="guiz-awards-row" id="P2" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p2"></li>
+        <li class="guiz-awards-track" id="ace2"></li>
+        <li class="guiz-awards-time" id="df2"></li>
+        <li class="guiz-awards-track" id="ret2"></li>
+      </ul>
+      <ul class="guiz-awards-row guiz-awards-row-even" id="P3" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p3"></li>
+        <li class="guiz-awards-track" id="ace3"></li>
+        <li class="guiz-awards-time" id="df3"></li>
+        <li class="guiz-awards-track" id="ret3"></li>
+      </ul>
+      <ul class="guiz-awards-row" id="P4" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p4"></li>
+        <li class="guiz-awards-track" id="ace4"></li>
+        <li class="guiz-awards-time" id="df4"></li>
+        <li class="guiz-awards-track" id="ret4"></li>
+      </ul>
+      <ul class="guiz-awards-row guiz-awards-row-even" id="P5" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p5"></li>
+        <li class="guiz-awards-track" id="ace5"></li>
+        <li class="guiz-awards-time" id="df5"></li>
+        <li class="guiz-awards-track" id="ret5"></li>
+      </ul>
+      <ul class="guiz-awards-row" id="P6" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p6"></li>
+        <li class="guiz-awards-track" id="ace6"></li>
+        <li class="guiz-awards-time" id="df6"></li>
+        <li class="guiz-awards-track" id="ret6"></li>
+      </ul>
+      <ul class="guiz-awards-row guiz-awards-row-even" id="P7" style="visibility: hidden">
+        <li class="guiz-awards-title" id="p7"></li>
+        <li class="guiz-awards-track" id="ace7"></li>
+        <li class="guiz-awards-time" id="df7"></li>
+        <li class="guiz-awards-track" id="ret7"></li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<script type="text/javascript">
+
+var w = 1500,
+    h = 1500
+
+var nodes_and_links = {}, link_nodes_per_year = {};
+
+function compare(a, b){
+  if(parseInt(a["year"]) > parseInt(b["year"])) return 1;
+  else if(parseInt(a["year"]) < parseInt(b["year"])) return -1;
+  else return 0;
+}
+
+function getSize(a){
+  if(a["round"]=="Final") return 0;
+  else if(a["round"]=="semi") return 1;
+  else if(a["round"]=="quarter") return 2;
+  else if(a["round"]=="Fourth") return 3;
+  else if(a["round"]=="Third") return 4;
+  else if(a["round"]=="Second") return 5;
+  else return 6;
+}
+
+function compare_rounds(a, b){
+  var t = getSize(a), q = getSize(b);
+  
+  if(t > q) return 1;
+  else if(t < q) return -1;
+  else return 0;
+} 
+
+function findLinksAndNodes(year, data){
+  links = [];
+  nodes = {};
+  node_links = {};
+  for (j = 0; j < data.length; j++){
+    link = {};
+
+    link["source"] = data[j]["winner"];
+    link["target"] = data[j]["player2"];
+    link["results"] = data[j]["results"];
+    link["ace1"] = data[j]["ace1"];
+    link["ace2"] = data[j]["ace2"];
+    link["double1"] = data[j]["double1"];
+    link["double2"] = data[j]["double2"];
+    link["return1"] = data[j]["return1"];
+    link["return2"] = data[j]["return2"];
+    link["round"] = data[j]["round"];
+
+    var size = getSize(data[j]);
+    switch(size){
+      case 0: {link["source_size"] = 160000; link["target_size"] = 120000; break;}
+      case 1: {link["source_size"] = 120000; link["target_size"] = 70000; break;}
+      case 2: {link["source_size"] = 70000; link["target_size"] = 40000; break;}
+      case 3: {link["source_size"] = 40000; link["target_size"] = 30000; break;}
+      case 4: {link["source_size"] = 30000; link["target_size"] = 20000; break;}
+      case 5: {link["source_size"] = 20000; link["target_size"] = 10000; break;}
+      default : {link["source_size"] = 10000; link["target_size"] = 2000; break;}
+    }
+
+    links.push(link);
+  }
+
+  links.forEach(function(link){
+    link.source = nodes[link.source] || (nodes[link.source] = {name: link.source, size: link.source_size})
+    link.target = nodes[link.target] || (nodes[link.target] = {name: link.target, size: link.target_size})
+
+    if(node_links[link.source.name]==null){
+    	node_links[link.source.name] = [link.source.name];
+    }
+
+    if(node_links[link.target.name]==null){
+    	node_links[link.target.name] = [link.target.name];
+    	node_links[link.target.name].push(link.source.name);
+    }
+    
+    node_links[link.source.name].push(link.target.name);
+  });
+  var obj = {};
+  obj["Nodes"] = nodes;
+  obj["links"] = links;
+  
+  nodes_and_links[year] = obj;
+  link_nodes_per_year[year] = node_links;
+
+}
+
+d3.csv("data.csv", function(data){
+  var json = {};
+  var newData = [];
+  data.sort(compare);
+
+  var prev_value = parseInt(data[0]["year"]);
+  newData.push(data[0]);
+
+  for (i = 1;i < data.length;i++){
+    if(prev_value != parseInt(data[i]["year"])){
+      newData.sort(compare_rounds);
+
+      // Find links and nodes for this year..
+      //findLinksAndNodes(prev_value.toString(), newData);
+      findLinksAndNodes(prev_value.toString(), newData);
+
+      prev_value = parseInt(data[i]["year"]);
+      newData = [];
+    }
+    newData.push(data[i]);
+  }
+  findLinksAndNodes(data[data.length-1]["year"], newData);
+});
+
+function onClick(year){
+	var radii = {}, circle_colors = {}, ismouseover = 0;
+	
+	document.getElementById("svgDiv").innerHTML = "";
+
+	var vis = d3.select("#svgDiv").append("svg:svg")
+    .attr("width", w-200)
+    .attr("height", h-200);
+
+    var div_tooltip = d3.select("#tempDiv")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+    var nodes = d3.values(nodes_and_links[year]["Nodes"]), links = nodes_and_links[year]["links"], node_links_year = link_nodes_per_year[year];
+    var force = self.force = d3.layout.force()
+        .nodes(nodes)
+        .links(links)
+        .gravity(.1)
+        .distance(100)
+        .charge(-550)
+        .size([w-400, h-300])
+        .start();
+
+    var link = vis.selectAll("line.link")
+        .data(links)
+        .enter().append("svg:line")
+        .attr("class", "link")
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    var node_drag = d3.behavior.drag()
+        .on("dragstart", dragstart)
+        .on("drag", dragmove)
+        .on("dragend", dragend);
+
+    function dragstart(d, i) {
+        force.stop() // stops the force auto positioning before you start dragging
+    }
+
+    function dragmove(d, i) {
+        d.px += d3.event.dx;
+        d.py += d3.event.dy;
+        d.x += d3.event.dx;
+        d.y += d3.event.dy; 
+        tick(); // this is the key to make it work together with updating both px,py,x,y on d !
+    }
+
+    function dragend(d, i) {
+        d.fixed = true; // of course set the node to fixed so the force doesn't include the node in its auto positioning stuff
+        tick();
+        force.resume();
+    }
+
+
+    var node = vis.selectAll("g.node")
+        .data(nodes)
+      .enter().append("svg:g")
+        .attr("class", "node")
+        .call(node_drag)
+        .on("mouseover", node_mouseover)
+        .on("mouseout", node_mouseout);
+
+      node.append("svg:circle")
+      .attr("r", function(d) { radii[d.name] = Math.sqrt(d.size) / 10 || 4.5; return Math.sqrt(d.size) / 10 || 4.5; })
+      .style("fill", function(d){
+      		var color = null;
+      		switch(d.size){
+      			case 160000: {color =  "#aafdfe"; break;}
+      			case 120000: {color =  "#02fdfe"; break;}
+      			case 70000: {color =  "#00eeff"; break;}
+      			case 40000: {color =  "#01d6ff"; break;}
+      			case 30000: {color =  "#0197ff"; break;}
+      			case 20000: {color =  "#015bff"; break;}
+      			case 10000: {color =  "#0101fb"; break;}
+      			default: color =  "#0101b4";
+      		}
+
+      		circle_colors[this.__data__.name] = color;
+      		return color;
+      });
+
+    node.append("svg:text")
+        .attr("class", "nodetext")
+        .attr("dx", 13)
+        .attr("dy", ".55em")
+        .text(function(d) { return d.name });
+
+    force.on("tick", tick);
+
+    function tick() {
+      link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+
+      node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    };
+    
+    function node_mouseover(){
+    	var proceed = true;
+    	
+    	this_name = this.__data__.name;
+
+    	circles = vis.selectAll("g.node")
+    	.select("circle")[0];
+
+    	circles.forEach(function(d){
+    		if(parseFloat(d.getAttribute("r"))!= radii[d.__data__.name]){
+    			proceed = false;
+    		}
+    	});
+
+    	if(proceed){
+    		var x, y;
+
+    		vis.selectAll("g.node")
+    		.filter(function(d){
+    			if(node_links_year[this_name].includes(d.name)){
+    				return d;
+    			}
+    		})
+    		.select("circle")
+    		.transition()
+    		.attr("r", function(d){
+    			var rad = parseInt(this.getAttribute("r"));
+    			return rad * 2;
+    		})
+    		.style("fill", function(d){
+    			if (d.name==this_name) {
+    				x = this.__data__.x;
+    				y = this.__data__.y;
+    				return "Orange";
+    			}
+    			else return circle_colors[this.__data__.name];
+    		});
+
+    		vis.selectAll("g.node")
+    		.filter(function(d){
+    			if(!node_links_year[this_name].includes(d.name)){
+    				return d;
+    			}
+    		})
+    		.style("opacity", 0.1)
+    		.select("text")
+    		.style("opacity", 0);
+
+    		link.style("opacity", 0);
+
+    		div_tooltip.transition()		
+                .duration(1000)		
+                .style("opacity", .8)
+                .style("height", "200px")
+                .style("width", "200px")
+                .style("visibility", "visible");
+            
+            div_tooltip.style("left", function(d){
+            	var temp = (w-200)/4;
+             	if(x<=temp) return (x+300)+"px";
+             	if(x<=2*temp) return (x+200)+"px";
+             	if(x<=3*temp) return (x-700)+"px";
+            	else return (x-800)+"px";
+            })		
+             .style("top", function(d){
+             	var temp = (h-200)/4;
+             	if(y<=temp) return y+"px";
+             	if(y<=2*temp) return (y-200)+"px";
+             	if(y<=3*temp) return (y-400)+"px";
+            	else return (y-500)+"px";
+             });
+
+             d3.select("#Main_Player").text(this_name);
+
+             var linked_nodes = node_links_year[this_name];
+             vis.selectAll("line.link")
+             .filter(function(d){
+             	if(linked_nodes.includes(d.source.name) && d.target.name==this_name || linked_nodes.includes(d.target.name) && d.source.name==this_name){
+             		var round = null, round_name = null;
+             		switch(d.round){
+             			case "Final": {round_name = "Final"; round = 7;break;}
+             			case "semi": {round_name = "Semi-Final"; round = 6;break;}
+             			case "quarter": {round_name = "Quarter-Final"; round = 5;break;}
+             			case "Fourth": {round_name = "Fourth Round"; round = 4;break;}
+             			case "Third": {round_name = "Third Round"; round = 3;break;}
+             			case "Second": {round_name = "Second Round"; round = 2;break;}
+             			default: {round_name = "First Round"; round = 1;break;}
+             		}
+
+             		var aces, dfs, rets, score = d.results, result_color = "Green", ace_color = "Black", df_color = "Black", ret_color = "Black", opponent;
+             		if(d.target.name==this_name){
+             			opponent = d.source.name;
+
+             			aces = parseInt(d.ace2)-parseInt(d.ace1);
+             			dfs = parseInt(d.double2)-parseInt(d.double1);
+             			rets = parseInt(d.return2)-parseInt(d.return1);
+
+             			if(aces>0) ace_color = "Green";
+             			else if(aces<0) ace_color = "Red";
+             			if(dfs>0) df_color = "Green";
+             			else if(dfs<0) df_color = "Red";
+             			if(rets>0) ret_color = "Green";
+             			else if(rets<0) ret_color = "Red";
+
+             			result_color = "Red";
+             		}
+             		else {
+             			opponent = d.target.name;
+
+             			aces = parseInt(d.ace1)-parseInt(d.ace2);
+             			dfs = parseInt(d.double1)-parseInt(d.double2);
+             			rets = parseInt(d.return1)-parseInt(d.return2);
+
+             			if(aces<0) ace_color = "Red";
+             			else if(aces>0) ace_color = "Green";
+             			if(dfs<0) df_color = "Red";
+             			else if(dfs>0) df_color = "Green";
+             			if(rets<0) ret_color = "Red";
+             			else if(rets>0) ret_color = "Green";
+             		}
+
+             		// Adding to the table..
+             		d3.select("#P"+round).style("visibility", "visible");
+
+             		var inner_html = "<div class='guiz-awards-subtitle' style='color: "+result_color+";'>"+round_name+": "+score+"</div>"
+					document.getElementById("p"+round).innerHTML = opponent+inner_html;
+
+					if(ace_color=="Green") d3.select("#ace"+round).text("+"+aces).style("color", ace_color);
+					else d3.select("#ace"+round).text(aces).style("color", ace_color);
+					
+					if(df_color=="Green") d3.select("#df"+round).text("+"+dfs).style("color", df_color);
+					else d3.select("#df"+round).text(dfs).style("color", df_color);
+
+					if(ret_color=="Green") d3.select("#ret"+round).text("+"+rets).style("color", ret_color);
+					else d3.select("#ret"+round).text(rets).style("color", ret_color);
+             	}
+             });
+    	}
+
+	}
+
+    function node_mouseout(){
+    	this_name = this.__data__.name;
+
+    	vis.selectAll("g.node")
+    	.select("circle")
+    	.transition()
+    	.attr("r", function(d){
+    		return radii[d.name];
+    	})
+    	.style("fill", function(d){
+    		return circle_colors[this.__data__.name];
+    	});
+
+    	vis.selectAll("g.node")
+    	.filter(function(d){
+    		if(!node_links_year[this_name].includes(d.name)){
+    			return d;
+    		}
+    	})
+    	.style("opacity", "1");
+
+    	node.select("text").style("opacity", 1);
+
+    	link.style("opacity", 0.3);
+
+    	div_tooltip.transition()		
+                .duration(500)		
+                .style("opacity", 0)
+                .style("height", 0)
+                .style("width", 0)
+                .style("visibility", "hidden");
+
+        for(var i = 1; i<=7; i++) d3.select("#P"+i).style("visibility", "hidden");
+    }
+
+
+//});
+}
+
+
+</script>
+</body>
+</html>
